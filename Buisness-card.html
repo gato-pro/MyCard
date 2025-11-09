@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Business Card — Interactive</title>
+  <style>
+    :root{
+      --card-w: 360px;
+      --card-h: 220px;
+      --accent:#0ea5a4; /* teal */
+      --muted:#6b7280;
+      --bg: linear-gradient(135deg,#0f172a 0%, #0b1220 100%);
+      --glass: rgba(255,255,255,0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;display:flex;align-items:center;justify-content:center;gap:20px;
+      padding:32px;background:var(--bg);color:#e6eef8;
+      -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    }
+
+    .wrap{display:flex;flex-direction:column;gap:18px;align-items:center}
+
+    .card-scene{width:var(--card-w);height:var(--card-h);perspective:1200px}
+    .card{width:100%;height:100%;border-radius:14px;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.9,.25,1);box-shadow:0 10px 30px rgba(2,6,23,.6)}
+    .card.is-flipped{transform:rotateY(180deg)}
+
+    .face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;display:flex;flex-direction:row;align-items:center;padding:18px;gap:14px}
+
+    /* front */
+    .front{background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.05)}
+    .avatar{width:84px;height:84px;border-radius:12px;flex:0 0 84px;display:grid;place-items:center;background:linear-gradient(180deg,#fff2 0%,#fff0 60%);border:1px solid rgba(255,255,255,.06)}
+    .meta{flex:1;display:flex;flex-direction:column;gap:6px}
+    .name{font-size:1.15rem;font-weight:700;letter-spacing:0.2px}
+    .title{font-size:.86rem;color:var(--muted)}
+    .company{font-weight:600;color:var(--accent)}
+
+    .info{margin-top:8px;display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+    .info-row{display:flex;gap:8px;align-items:center}
+    .info-row button{background:transparent;border:0;color:inherit;cursor:pointer;padding:4px 6px;border-radius:8px}
+    .chip{font-size:.82rem;color:var(--muted)}
+
+    /* back */
+    .back{transform:rotateY(180deg);background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:20px;box-sizing:border-box}
+    .qr{width:96px;height:96px;border-radius:8px;background:linear-gradient(180deg,#111 0%,#000 100%);display:grid;place-items:center;flex:0 0 96px}
+    .notes{flex:1;padding-left:12px;color:var(--muted);font-size:.9rem}
+
+    /* controls */
+    .controls{display:flex;gap:8px}
+    .btn{background:var(--accent);border:0;padding:8px 10px;border-radius:8px;color:#022;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
+
+    /* small helper */
+    footer{font-size:.78rem;color:var(--muted);text-align:center}
+
+    @media (max-width:420px){:root{--card-w:320px;--card-h:200px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card-scene" aria-hidden="false">
+      <div class="card" id="card">
+        <div class="face front" role="region" aria-label="business card front">
+          <div class="avatar" id="avatar">
+            <!-- simple avatar svg -->
+           <img src="me.png" alt="me.png" style="height: 70px;">
+          </div>
+
+          <div class="meta">
+            <div>
+              <div class="name" id="name">Your Name</div>
+              <div class="title" id="title">Job Title</div>
+            </div>
+
+            <div class="company" id="company">Company / Org</div>
+
+            <div class="info">
+              <div class="info-row">
+                <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M17.3545 22.2323C15.3344 21.7262 11.1989 20.2993 7.44976 16.5502C3.70065 12.8011 2.2738 8.66559 1.76767 6.6455C1.47681 5.48459 2.00058 4.36434 2.88869 3.72997L5.21694 2.06693C6.57922 1.09388 8.47432 1.42407 9.42724 2.80051L10.893 4.91776C11.5152 5.8165 11.3006 7.0483 10.4111 7.68365L9.24234 8.51849C9.41923 9.1951 9.96939 10.5846 11.6924 12.3076C13.4154 14.0306 14.8049 14.5807 15.4815 14.7576L16.3163 13.5888C16.9517 12.6994 18.1835 12.4847 19.0822 13.1069L21.1995 14.5727C22.5759 15.5257 22.9061 17.4207 21.933 18.783L20.27 21.1113C19.6356 21.9994 18.5154 22.5232 17.3545 22.2323ZM8.86397 15.136C12.2734 18.5454 16.0358 19.8401 17.8405 20.2923C18.1043 20.3583 18.4232 20.2558 18.6425 19.9488L20.3056 17.6205C20.6299 17.1665 20.5199 16.5348 20.061 16.2171L17.9438 14.7513L17.0479 16.0056C16.6818 16.5182 16.0047 16.9202 15.2163 16.7501C14.2323 16.5378 12.4133 15.8569 10.2782 13.7218C8.1431 11.5867 7.46219 9.7677 7.24987 8.7837C7.07977 7.9953 7.48181 7.31821 7.99439 6.95208L9.24864 6.05618L7.78285 3.93893C7.46521 3.48011 6.83351 3.37005 6.37942 3.6944L4.05117 5.35744C3.74413 5.57675 3.64162 5.89565 3.70771 6.15943C4.15989 7.96418 5.45459 11.7266 8.86397 15.136Z" fill="#ffffff"></path> </g></svg>
+                <div class="chip" id="phone">+91 98765 43210</div>
+                <button class="ghost" onclick="copyField('phone')" title="Copy phone">Copy</button>
+              </div>
+
+              <div class="info-row">
+                <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 5.25L3 6V18L3.75 18.75H20.25L21 18V6L20.25 5.25H3.75ZM4.5 7.6955V17.25H19.5V7.69525L11.9999 14.5136L4.5 7.6955ZM18.3099 6.75H5.68986L11.9999 12.4864L18.3099 6.75Z" fill="#ffffff"></path> </g></svg>
+                <div class="chip" id="email">name@example.com</div>
+                <button class="ghost" onclick="copyField('email')" title="Copy email">Copy</button>
+              </div>
+
+              <div class="info-row">
+                <svg width="16px" height="16px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" stroke-width="3" stroke="#ffffff" fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M39.93,55.72A24.86,24.86,0,1,1,56.86,32.15a37.24,37.24,0,0,1-.73,6"></path><path d="M37.86,51.1A47,47,0,0,1,32,56.7"></path><path d="M32,7A34.14,34.14,0,0,1,43.57,30a34.07,34.07,0,0,1,.09,4.85"></path><path d="M32,7A34.09,34.09,0,0,0,20.31,32.46c0,16.2,7.28,21,11.66,24.24"></path><line x1="10.37" y1="19.9" x2="53.75" y2="19.9"></line><line x1="32" y1="6.99" x2="32" y2="56.7"></line><line x1="11.05" y1="45.48" x2="37.04" y2="45.48"></line><line x1="7.14" y1="32.46" x2="56.86" y2="31.85"></line><path d="M53.57,57,58,52.56l-8-8,4.55-2.91a.38.38,0,0,0-.12-.7L39.14,37.37a.39.39,0,0,0-.46.46L42,53.41a.39.39,0,0,0,.71.13L45.57,49Z"></path></g></svg>
+                <div class="chip" id="website">www.example.com</div>
+                <button class="ghost" onclick="openWebsite()" title="Open website">Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="face back" role="region" aria-label="business card back">
+          <div style="display:flex;align-items:center;width:100%;gap:12px">
+            <div class="qr" id="qr">
+              <!-- small stylized QR placeholder -->
+              <!-- <svg width="68" height="68" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="7" height="7" rx="1" fill="#fff" opacity=".95"/>
+                <rect x="15" y="2" width="7" height="7" rx="1" fill="#fff" opacity=".95"/>
+                <rect x="2" y="15" width="7" height="7" rx="1" fill="#fff" opacity=".95"/>
+                <rect x="10" y="10" width="3" height="3" fill="#fff"/>
+                <rect x="14" y="14" width="2" height="2" fill="#fff"/>
+              </svg> -->
+
+              <img src="qrcode.png" alt="svg" style="width: 75px; height: 75px;">
+
+            </div>
+            <div class="notes">
+              <div style="font-weight:700;margin-bottom:6px">Instagram</div>
+              <div id="notesText">Open to freelance work • Available for collaborations • Based in City, Country</div>
+              <div style="margin-top:12px;display:flex;gap:8px">
+                <button class="btn" onclick="downloadVCard()">Download vCard</button>
+                <button class="btn ghost" onclick="toggleFlip()">Flip Card</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn" onclick="toggleFlip()">Flip</button>
+      <button class="btn ghost" onclick="editDemo()">Edit demo fields</button>
+    </div>
+
+    <footer>Tip: click <strong>Copy</strong> to copy phone/email or <strong>Download vCard</strong> to add contact to your phone.</footer>
+  </div>
+
+  <script>
+    // Demo data (edit these values as you like)
+    const demo = {
+      name: 'Suraj Das',
+      title: 'Coder',
+      company: 'MIB',
+      phone: '+91 9818943600',
+      email: 'azuredawn78@gmail.com',
+      website: 'https://coding-related.blogspot.com',
+      notes: 'scan to follow me on Instagram'
+    };
+
+    // Fill demo fields into card
+    function populate(d){
+      document.getElementById('name').textContent = d.name;
+      document.getElementById('title').textContent = d.title;
+      document.getElementById('company').textContent = d.company;
+      document.getElementById('phone').textContent = d.phone;
+      document.getElementById('email').textContent = d.email;
+      document.getElementById('website').textContent = d.website.replace(/^https?:\/\//,'');
+      document.getElementById('notesText').textContent = d.notes;
+    }
+
+    populate(demo);
+
+    // copy helper
+    function copyField(id){
+      const text = document.getElementById(id).textContent.trim();
+      navigator.clipboard?.writeText(text).then(()=>{
+        const b = document.createElement('span');
+        b.textContent = 'Copied!';
+        b.style.position='fixed';b.style.bottom='22px';b.style.left='50%';b.style.transform='translateX(-50%)';
+        b.style.background='rgba(0,0,0,0.6)';b.style.color='#fff';b.style.padding='8px 12px';b.style.borderRadius='8px';
+        document.body.appendChild(b);
+        setTimeout(()=>b.remove(),1200);
+      }).catch(()=>alert('Copy failed — please copy manually.'))
+    }
+
+    function openWebsite(){
+      const url = document.getElementById('website').textContent.trim();
+      const pref = url.match(/^https?:\/\//) ? url : 'https://' + url;
+      window.open(pref, '_blank');
+    }
+
+    function toggleFlip(){
+      document.getElementById('card').classList.toggle('is-flipped');
+    }
+
+    // vCard generator & download
+    function downloadVCard(){
+      const v = {
+        fn: document.getElementById('name').textContent.trim(),
+        org: document.getElementById('company').textContent.trim(),
+        title: document.getElementById('title').textContent.trim(),
+        phone: document.getElementById('phone').textContent.trim(),
+        email: document.getElementById('email').textContent.trim(),
+        url: document.getElementById('website').textContent.trim()
+      };
+      const lines = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        `FN:${v.fn}`,
+        `ORG:${v.org}`,
+        `TITLE:${v.title}`,
+        `TEL;TYPE=WORK,VOICE:${v.phone}`,
+        `EMAIL;TYPE=INTERNET:${v.email}`,
+        `URL:${v.url}`,
+        'END:VCARD'
+      ];
+      const blob = new Blob([lines.join('\r\n')], {type:'text/vcard'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = (v.fn || 'contact') + '.vcf';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+    }
+
+    // quick demo editor so user can see how to customize fields
+    function editDemo(){
+      const s = prompt('Edit fields as comma-separated values:\nname,title,company,phone,email,website,notes',
+        [demo.name,demo.title,demo.company,demo.phone,demo.email,demo.website, demo.notes].join(','));
+      if(!s) return;
+      const parts = s.split(',');
+      demo.name = parts[0]?.trim() || demo.name;
+      demo.title = parts[1]?.trim() || demo.title;
+      demo.company = parts[2]?.trim() || demo.company;
+      demo.phone = parts[3]?.trim() || demo.phone;
+      demo.email = parts[4]?.trim() || demo.email;
+      demo.website = parts[5]?.trim() || demo.website;
+      demo.notes = parts.slice(6).join(',').trim() || demo.notes;
+      populate(demo);
+    }
+  </script>
+</body>
+</html>
